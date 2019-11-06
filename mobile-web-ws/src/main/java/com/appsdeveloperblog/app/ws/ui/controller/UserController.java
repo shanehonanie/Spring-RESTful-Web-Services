@@ -73,7 +73,18 @@ public class UserController {
 		
 	}
 	
-	// http://localhost:8000/mobile-app-ws/users/:userid/addresses
+	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.APPLICATION_XML_VALUE })
+	public AddressesRest getUserAddress(@PathVariable String addressId) {
+
+		AddressDto addressesDto = addressService.getAddress(addressId);
+
+		ModelMapper modelMapper = new ModelMapper();
+
+		return modelMapper.map(addressesDto, AddressesRest.class);
+	}
+	
+	// http://localhost:8080/mobile-app-ws/users/:userId/addresses
 	@GetMapping(path="/{id}/addresses",
 			produces= {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
 	public List<AddressesRest> getUserAddresses(@PathVariable String id){
