@@ -20,7 +20,7 @@ import com.appsdeveloperblog.app.ws.io.entity.UserEntity;
 import com.appsdeveloperblog.app.ws.io.repositories.UserRepository;
 import com.appsdeveloperblog.app.ws.service.UserService;
 import com.appsdeveloperblog.app.ws.shared.Utils;
-import com.appsdeveloperblog.app.ws.shared.dto.AddressDTO;
+import com.appsdeveloperblog.app.ws.shared.dto.AddressDto;
 import com.appsdeveloperblog.app.ws.shared.dto.UserDto;
 import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessage;
 import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessages;
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
 			throw new RuntimeException("Record already exists");
 		
 		for(int i = 0; i < user.getAddresses().size(); i++) {
-			AddressDTO address = user.getAddresses().get(i);
+			AddressDto address = user.getAddresses().get(i);
 			address.setUserDetails(user);
 			address.setAddressId(utils.generateAddressId(30));
 			user.getAddresses().set(i, address);
