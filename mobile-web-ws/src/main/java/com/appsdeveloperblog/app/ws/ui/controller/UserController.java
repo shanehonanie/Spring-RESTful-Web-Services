@@ -8,6 +8,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import com.appsdeveloperblog.app.ws.exceptions.UserServiceException;
 import com.appsdeveloperblog.app.ws.service.AddressService;
@@ -32,8 +37,9 @@ import com.appsdeveloperblog.app.ws.ui.model.response.RequestOperationName;
 import com.appsdeveloperblog.app.ws.ui.model.response.RequestOperationStatus;
 import com.appsdeveloperblog.app.ws.ui.model.response.UserRest;
 
+
 @RestController
-@RequestMapping("users")
+@RequestMapping("/users")
 public class UserController {
 	
 	@Autowired
@@ -74,30 +80,48 @@ public class UserController {
 	}
 	
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_JSON_VALUE,
-			MediaType.APPLICATION_XML_VALUE })
-	public AddressesRest getUserAddress(@PathVariable String addressId) {
+			MediaType.APPLICATION_XML_VALUE, "application/hal+json" })
+	public EntityModel<AddressesRest> getUserAddress(@PathVariable String addressId, @PathVariable String userId) {
 
 		AddressDto addressesDto = addressService.getAddress(addressId);
 
 		ModelMapper modelMapper = new ModelMapper();
+		Link addressLink = linkTo(methodOn(UserController.class).getUserAddress(userId, addressId)).withSelfRel();
+		Link userLink = linkTo(UserController.class).slash(userId).withRel("user");
+		Link addressesLink = linkTo(methodOn(UserController.class).getUserAddresses(userId)).withRel("addresses");
 
-		return modelMapper.map(addressesDto, AddressesRest.class);
+		AddressesRest addressesRestModel = modelMapper.map(addressesDto, AddressesRest.class);
+		
+		addressesRestModel.add(addressLink);
+		addressesRestModel.add(userLink);
+		addressesRestModel.add(addressesLink);
+		
+		return new EntityModel<>(addressesRestModel);
 	}
 	
 	// http://localhost:8080/mobile-app-ws/users/:userId/addresses
 	@GetMapping(path="/{id}/addresses",
-			produces= {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-	public List<AddressesRest> getUserAddresses(@PathVariable String id){
-		List<AddressesRest> returnValue = new ArrayList<>();
+			produces= {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE, "application/hal+json" })
+	public CollectionModel<AddressesRest> getUserAddresses(@PathVariable String id){
+		List<AddressesRest> addressesListRestModel = new ArrayList<>();
 		
 		List<AddressDto> addressesDto = addressService.getAddresses(id);
 		
 		if(addressesDto != null && !addressesDto.isEmpty()) {
 			Type listType = new TypeToken<List<AddressesRest>>() {}.getType();
-			returnValue = new ModelMapper().map(addressesDto, listType);
+			addressesListRestModel = new ModelMapper().map(addressesDto, listType);
+			
+			for (AddressesRest addressRest : addressesListRestModel) {
+				Link addressLink = linkTo(methodOn(UserController.class).getUserAddress(id, addressRest.getAddressId()))
+						.withSelfRel();
+				addressRest.add(addressLink);
+
+				Link userLink = linkTo(methodOn(UserController.class).getUser(id)).withRel("user");
+				addressRest.add(userLink);
+			}
 		}
 
-		return returnValue;
+		return new CollectionModel<>(addressesListRestModel);
 	}
 	
 	@PostMapping(
@@ -110,8 +134,6 @@ public class UserController {
 		if(userDetails.getFirstName().isEmpty() || userDetails.getLastName().isEmpty() ||
 				userDetails.getEmail().isEmpty() || userDetails.getPassword().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 
-//		UserDto userDto = new UserDto();
-//		BeanUtils.copyProperties(userDetails, userDto);
 		ModelMapper modelMapper = new ModelMapper();
 		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 		
