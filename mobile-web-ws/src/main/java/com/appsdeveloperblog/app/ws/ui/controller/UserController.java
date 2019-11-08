@@ -12,6 +12,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -165,10 +166,30 @@ public class UserController {
 	public OperationStatusModel deleteUser(@PathVariable String id) {
 		OperationStatusModel returnValue = new OperationStatusModel();
 		returnValue.setOperationName(RequestOperationName.DELETE.name());
-		
+
 		userService.deleteUser(id);
-		
+
 		returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		return returnValue;
+	}
+
+	// http://localhost:8080/mobile-app-ws/users/email-verification?token=sdfsdf
+	@CrossOrigin(origins = "http://localhost:8080")
+	@GetMapping(path = "/email-verification", produces = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.APPLICATION_XML_VALUE })
+	public OperationStatusModel verifyEmailToken(@RequestParam(value = "token") String token) {
+
+		OperationStatusModel returnValue = new OperationStatusModel();
+		returnValue.setOperationName(RequestOperationName.VERIFY_EMAIL.name());
+
+		boolean isVerified = userService.verifyEmailToken(token);
+
+		if (isVerified) {
+			returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		} else {
+			returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		}
+
 		return returnValue;
 	}
 }
