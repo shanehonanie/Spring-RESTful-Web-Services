@@ -10,11 +10,11 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.appsdeveloperblog.app.ws</groupId>
-	<artifactId>mobile-web-ws</artifactId>
+	<artifactId>mobile-app-ws</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>mobile-web-ws</name>
+	<name>mobile-app-ws</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>

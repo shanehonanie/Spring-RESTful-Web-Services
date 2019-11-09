@@ -10,15 +10,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.appsdeveloperblog.app.ws.security.AppProperties;
 
 @SpringBootApplication
-public class MobileWebWsApplication extends SpringBootServletInitializer{
+public class MobileAppWsApplication extends SpringBootServletInitializer{
 	
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(MobileWebWsApplication.class);
+		return application.sources(MobileAppWsApplication.class);
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(MobileWebWsApplication.class, args);
+		SpringApplication.run(MobileAppWsApplication.class, args);
 	}
 	
 	@Bean
