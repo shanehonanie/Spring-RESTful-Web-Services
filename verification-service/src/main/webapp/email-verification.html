@@ -17,7 +17,7 @@ $(document).ready(function () {
     
     function verifyToken(tokenValue)
     {
-        $.get('http://ec2-34-220-170-251.us-west-2.compute.amazonaws.com:8080/mobile-web-ws/users/email-verification', {token: tokenValue})
+        $.get('http://ec2-34-220-170-251.us-west-2.compute.amazonaws.com:8080/mobile-app-ws/users/email-verification', {token: tokenValue})
         .done(function (response) {
             if (response["operationResult"] === "SUCCESS")
             {
