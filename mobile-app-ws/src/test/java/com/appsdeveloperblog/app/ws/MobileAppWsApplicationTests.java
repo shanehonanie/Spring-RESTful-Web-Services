@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MobileWebWsApplicationTests {
+class MobileAppWsApplicationTests {
 
 	@Test
 	void contextLoads() {
