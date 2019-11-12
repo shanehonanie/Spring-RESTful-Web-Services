@@ -56,7 +56,7 @@ class UsersWebServiceEndpointTest {
 	
 	@Test
 	@Order(2) 
-	void TestGetUserdetails() {		
+	void TestGetUserDetails() {		
 		Response response = given()
 		.pathParam("id", UserID)
 		.header("Authorization", authHeader)
@@ -83,5 +83,39 @@ class UsersWebServiceEndpointTest {
 		
 		assertTrue(addresses.size() == 2);
 		assertTrue(addressId.length() == 30);
+	}
+	
+	@Test
+	@Order(3)
+	final void testUpdateUserDetails()
+	{
+		Map<String, Object> userDetails = new HashMap<>();
+		userDetails.put("firstName", "SergeUpdated");
+		userDetails.put("lastName", "KargopolovUpdated");
+		
+		 Response response = given()
+		 .contentType(JSON)
+		 .accept(JSON)
+		 .header("Authorization",authHeader)
+		 .pathParam("id", UserID)
+		 .body(userDetails)
+		 .when()
+		 .put(CONTEXT_PATH + "/users/{id}")
+		 .then()
+		 .statusCode(200)
+		 .contentType(JSON)
+		 .extract()
+		 .response();
+		 
+         String firstName = response.jsonPath().getString("firstName");
+         String lastName = response.jsonPath().getString("lastName");
+         
+         List<Map<String, String>> storedAddresses = response.jsonPath().getList("addresses");
+         
+         assertEquals("SergeUpdated", firstName);
+         assertEquals("KargopolovUpdated", lastName);
+         assertNotNull(storedAddresses);
+         assertTrue(addresses.size() == storedAddresses.size());
+         assertEquals(addresses.get(0).get("streetName"), storedAddresses.get(0).get("streetName"));
 	}
 }
